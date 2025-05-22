@@ -311,34 +311,46 @@
 	};
 	goHere();
 
+	let endTime;
+
+	function getEndOfMonthDate() {
+		const now = new Date();
+		const year = now.getFullYear();
+		const month = now.getMonth();
+
+		// Get the last day of this month at 23:59:59
+		const lastDay = new Date(year, month + 1, 0, 23, 59, 59);
+		return lastDay;
+	}
+
+	function updateEndTime() {
+		endTime = Math.floor(getEndOfMonthDate().getTime() / 1000);
+	}
+
 	function makeTimer() {
+		const now = Math.floor(new Date().getTime() / 1000);
 
-		var endTime = new Date("21 December 2019 9:56:00 GMT+01:00");			
-		endTime = (Date.parse(endTime) / 1000);
+		let timeLeft = endTime - now;
 
-		var now = new Date();
-		now = (Date.parse(now) / 1000);
+		// If time is up, move to next month's end
+		if (timeLeft <= 0) {
+			updateEndTime();
+			timeLeft = endTime - now;
+		}
 
-		var timeLeft = endTime - now;
+		const days = Math.floor(timeLeft / 86400);
+		const hours = Math.floor((timeLeft % 86400) / 3600);
+		const minutes = Math.floor((timeLeft % 3600) / 60);
+		const seconds = Math.floor(timeLeft % 60);
 
-		var days = Math.floor(timeLeft / 86400); 
-		var hours = Math.floor((timeLeft - (days * 86400)) / 3600);
-		var minutes = Math.floor((timeLeft - (days * 86400) - (hours * 3600 )) / 60);
-		var seconds = Math.floor((timeLeft - (days * 86400) - (hours * 3600) - (minutes * 60)));
+		$("#days").html((days < 10 ? "0" + days : days) + "<span>Days</span>");
+		$("#hours").html((hours < 10 ? "0" + hours : hours) + "<span>Hours</span>");
+		$("#minutes").html((minutes < 10 ? "0" + minutes : minutes) + "<span>Minutes</span>");
+		$("#seconds").html((seconds < 10 ? "0" + seconds : seconds) + "<span>Seconds</span>");
+	}
 
-		if (hours < "10") { hours = "0" + hours; }
-		if (minutes < "10") { minutes = "0" + minutes; }
-		if (seconds < "10") { seconds = "0" + seconds; }
-
-		$("#days").html(days + "<span>Days</span>");
-		$("#hours").html(hours + "<span>Hours</span>");
-		$("#minutes").html(minutes + "<span>Minutes</span>");
-		$("#seconds").html(seconds + "<span>Seconds</span>");		
-
-}
-
-setInterval(function() { makeTimer(); }, 1000);
-
+	updateEndTime(); // initialize first time
+	setInterval(makeTimer, 1000);
 
 
 
